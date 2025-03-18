@@ -1,0 +1,6 @@
+@FIAP.TC.Fase03.ContatosAPI.Cadastro_HostAddress = http://localhost:5141
+
+GET {{FIAP.TC.Fase03.ContatosAPI.Cadastro_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
