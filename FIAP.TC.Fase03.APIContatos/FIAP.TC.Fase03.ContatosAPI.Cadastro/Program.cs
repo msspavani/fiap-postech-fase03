@@ -1,44 +1,65 @@
-var builder = WebApplication.CreateBuilder(args);
+using System.Text.Json;
+using FIAP.TC.Fase03.ContatosAPI.Atualizacao.Application.DTOs;
+using FIAP.TC.Fase03.ContatosAPI.Cadastro.Application;
+using FIAP.TC.Fase03.ContatosAPI.Cadastro.Domain.Interfaces;
+using FIAP.TC.Fase03.ContatosAPI.Cadastro.Infrastructure;
+using MassTransit;
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+namespace FIAP.TC.Fase03.ContatosAPI.Cadastro;
 
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+public class Program
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseHttpsRedirection();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
+    public static void Main(string[] args)
     {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-            .ToArray();
-        return forecast;
-    })
-    .WithName("GetWeatherForecast")
-    .WithOpenApi();
+        var builder = WebApplication.CreateBuilder(args);
 
-app.Run();
+        builder.Services.AddControllers().AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        });
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+        builder.Services.AddMassTransit(busConfigurator =>
+        {
+            busConfigurator.SetKebabCaseEndpointNameFormatter();
+            
+            
+
+            busConfigurator.UsingRabbitMq((context, cfg) =>
+            {
+                cfg.Host("localhost", 5672, "/", h =>
+                {
+                    h.Username("guest");
+                    h.Password("guest");
+                });
+               
+                cfg.Message<AtualizacaoContatoDto>(x 
+                    => x.SetEntityName("Fiap.Fase03"));
+
+                cfg.Publish<AtualizacaoContatoDto>(x
+                    =>
+                {
+                    x.ExchangeType = "direct";
+                    
+                });
+            });
+        });
+
+        builder.Services.AddScoped<IContatoService, ContatoService>();
+        builder.Services.AddScoped<CadastroProducer>();
+
+        var app = builder.Build();
+
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
+
+        app.MapControllers();
+        app.UseHttpsRedirection();
+
+        app.Run();
+    }
 }

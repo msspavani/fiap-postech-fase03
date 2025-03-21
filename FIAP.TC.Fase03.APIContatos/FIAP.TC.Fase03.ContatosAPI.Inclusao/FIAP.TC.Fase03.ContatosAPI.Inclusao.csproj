@@ -15,10 +15,6 @@
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1"/>
         <PackageReference Include="RabbitMQ.Client" Version="7.1.2" />
         <PackageReference Include="ServiceCollectionExtensions" Version="1.0.2" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="src\Application\DTOs\" />
-      <Folder Include="src\Application\Services\" />
+        <PackageReference Include="Ulid" Version="1.3.4" />
     </ItemGroup>
 </Project>

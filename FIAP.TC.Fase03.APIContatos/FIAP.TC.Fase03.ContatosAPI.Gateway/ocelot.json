@@ -29,6 +29,24 @@
         "Period": "60s",
         "Limit": 5
       }
+    },
+    {
+      "DownstreamPathTemplate": "/api/contatos/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 7071 }
+      ],
+      "UpstreamPathTemplate": "/contatos/{id}",
+      "UpstreamHttpMethod": [ "Get" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/contatos/ddd/{ddd}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "localhost", "Port": 7071 }
+      ],
+      "UpstreamPathTemplate": "/contatos/ddd/{ddd}",
+      "UpstreamHttpMethod": [ "Get" ]
     }
   ],
   "GlobalConfiguration": {
