@@ -29,4 +29,8 @@
         <HintPath>..\..\..\..\..\..\..\.nuget\packages\ulid\1.3.4\lib\net8.0\Ulid.dll</HintPath>
       </Reference>
     </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\FIAP.TC.Fase03.ContatosAPI.Remocao\FIAP.TC.Fase03.ContatosAPI.Remocao.csproj" />
+    </ItemGroup>
 </Project>

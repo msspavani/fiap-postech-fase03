@@ -1,5 +1,6 @@
 using System.Data;
 using System.Reflection;
+using System.Text.Json;
 using FIAP.TC.Fase03.ContatosAPI.Atualizacao;
 using FIAP.TC.Fase03.ContatosAPI.Atualizacao.Application.Consumers;
 using FIAP.TC.Fase03.ContatosAPI.Atualizacao.Application.Services;
@@ -20,15 +21,22 @@ builder.Services.AddTransient<IDbConnection>(sp =>
 });
 
 builder.Services.AddMediatR(cfg =>
-    cfg.RegisterServicesFromAssembly(Assembly.Load("FIAP.TC.FASE03.ContatosAPI.Inclusao"))
+    cfg.RegisterServicesFromAssembly(Assembly.Load("FIAP.TC.FASE03.ContatosAPI.Atualizacao"))
 );
 
 builder.Services.AddScoped<IContatoRepository, ContatoRepository>();
 builder.Services.AddScoped<IAtualizacaoService, AtualizacaoService>();
 
 
+builder.Services.AddMediator(cfg =>
+{
+    cfg.AddConsumers(Assembly.GetExecutingAssembly());
+});
+
 builder.Services.AddMassTransit(x =>
 {
+    x.SetKebabCaseEndpointNameFormatter();
+    
     x.AddConsumer<ConsumerAtualizacao>();
     x.UsingRabbitMq((context, cfg) =>
     {
@@ -37,10 +45,17 @@ builder.Services.AddMassTransit(x =>
             host.Username("guest");
             host.Password("guest");
         });
+
         
-        cfg.ReceiveEndpoint("atualizacao_queue", e =>
+        
+        cfg.ReceiveEndpoint("Update", e =>
         {
             e.ConfigureConsumer<ConsumerAtualizacao>(context);
+            e.Bind("Fiap.Fase03", x =>
+            {
+                x.RoutingKey = "Update";
+                x.ExchangeType = "direct";
+            });
         });
         
     });

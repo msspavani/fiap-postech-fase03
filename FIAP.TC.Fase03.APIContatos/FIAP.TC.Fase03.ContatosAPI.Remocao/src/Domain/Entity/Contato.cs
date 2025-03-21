@@ -1,7 +1,7 @@
 using System.Text.RegularExpressions;
 using FIAP.TC.Fase03.ContatosAPI.Remocao.Domain.Interfaces;
 
-namespace FIAP.TC.Fase03.ContatosAPI.Atualizacao.Domain.Entity;
+namespace FIAP.TC.Fase03.ContatosAPI.Remocao.Domain.Entity;
 
      public class Contato : Remocao.Domain.Entity.Entity, IAggregateRoot
     {

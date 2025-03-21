@@ -1,6 +1,6 @@
 using System.Data;
 using Dapper;
-using FIAP.TC.Fase03.ContatosAPI.Atualizacao.Domain.Entity;
+using FIAP.TC.Fase03.ContatosAPI.Remocao.Domain.Entity;
 using FIAP.TC.Fase03.ContatosAPI.Remocao.Domain.Interfaces.Repositories;
 
 namespace FIAP.TC.Fase03.ContatosAPI.Remocao.Infrastructure.Repositories;

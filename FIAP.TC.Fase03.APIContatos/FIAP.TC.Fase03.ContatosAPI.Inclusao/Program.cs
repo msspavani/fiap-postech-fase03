@@ -36,7 +36,7 @@ builder.Services.AddMassTransit(x =>
             host.Password("guest");
         });
         
-        cfg.ReceiveEndpoint("inclusao_queue", e =>
+        cfg.ReceiveEndpoint("Create", e =>
         {
             e.ConfigureConsumer<ConsumerInclusao>(context);
         });

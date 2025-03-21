@@ -39,7 +39,7 @@ builder.Services.AddMassTransit(x =>
             host.Password("guest");
         });
         
-        cfg.ReceiveEndpoint("remocao_queue", e =>
+        cfg.ReceiveEndpoint("Remove", e =>
         {
             e.ConfigureConsumer<ConsumerRemocao>(context);
         });

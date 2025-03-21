@@ -1,4 +1,4 @@
-using FIAP.TC.Fase03.ContatosAPI.Atualizacao.Domain.Entity;
+using FIAP.TC.Fase03.ContatosAPI.Remocao.Domain.Entity;
 
 namespace FIAP.TC.Fase03.ContatosAPI.Remocao.Domain.Interfaces.Repositories;
 
