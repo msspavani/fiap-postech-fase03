@@ -1,8 +1,10 @@
 using System.Text.Json;
 using FIAP.TC.Fase03.ContatosAPI.Atualizacao.Application.DTOs;
 using FIAP.TC.Fase03.ContatosAPI.Cadastro.Application;
+using FIAP.TC.Fase03.ContatosAPI.Cadastro.Domain;
 using FIAP.TC.Fase03.ContatosAPI.Cadastro.Domain.Interfaces;
 using FIAP.TC.Fase03.ContatosAPI.Cadastro.Infrastructure;
+using FIAP.TC.Fase03.ContatosAPI.Shared.Domain.Dtos;
 using MassTransit;
 
 namespace FIAP.TC.Fase03.ContatosAPI.Cadastro;
@@ -20,32 +22,26 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
-        builder.Services.AddMassTransit(busConfigurator =>
+        builder.Services.AddMassTransit(x =>
         {
-            busConfigurator.SetKebabCaseEndpointNameFormatter();
-            
-            
-
-            busConfigurator.UsingRabbitMq((context, cfg) =>
+            x.UsingRabbitMq((context, cfg) =>
             {
-                cfg.Host("localhost", 5672, "/", h =>
+                cfg.Host("localhost", "/", h =>
                 {
                     h.Username("guest");
                     h.Password("guest");
                 });
-               
-                cfg.Message<AtualizacaoContatoDto>(x 
-                    => x.SetEntityName("Fiap.Fase03"));
-
-                cfg.Publish<AtualizacaoContatoDto>(x
-                    =>
+                
+                cfg.Publish<MensagemInclusaoDTO>(pub =>
                 {
-                    x.ExchangeType = "direct";
-                    
+                    pub.ExchangeType = "direct";
                 });
+
+                cfg.ConfigureEndpoints(context);
             });
         });
 
+        builder.Services.AddMassTransitHostedService();
         builder.Services.AddScoped<IContatoService, ContatoService>();
         builder.Services.AddScoped<CadastroProducer>();
 

@@ -1,7 +1,7 @@
 using FIAP.TC.Fase03.ContatosAPI.Inclusao.Application.Commands;
-using FIAP.TC.Fase03.ContatosAPI.Inclusao.Application.DTOs;
 using FIAP.TC.Fase03.ContatosAPI.Inclusao.Domain.Interfaces.Application;
-using MassTransit.Mediator;
+using FIAP.TC.Fase03.ContatosAPI.Shared.Domain.Dtos;
+using MediatR;
 
 namespace FIAP.TC.Fase03.ContatosAPI.Inclusao.Application.Services;
 

@@ -1,6 +1,7 @@
 using FIAP.TC.Fase03.ContatosAPI.Cadastro.Domain;
 using FIAP.TC.Fase03.ContatosAPI.Cadastro.Domain.Interfaces;
 using FIAP.TC.Fase03.ContatosAPI.Cadastro.Infrastructure;
+using FIAP.TC.Fase03.ContatosAPI.Shared.Domain.Dtos;
 using MassTransit;
 
 namespace FIAP.TC.Fase03.ContatosAPI.Cadastro.Application;
@@ -18,7 +19,7 @@ public class ContatoService : IContatoService
     {
         _ = _producer.PublishMessageAsync(
             nameof(Create), 
-            new ContatoDto(contato.ContatoId, contato.Nome, contato.Telefone, contato.Email, contato.Ddd)
+            new MensagemInclusaoDTO(Ulid.NewUlid(), contato.Nome, contato.Telefone, contato.Email, contato.Ddd)
         );
         
         return default;

@@ -25,7 +25,6 @@ public class ContatosController : ControllerBase
             return BadRequest(ModelState);
 
         await _contatoService.Create(contato);
-        
         return Ok();
     }
 
