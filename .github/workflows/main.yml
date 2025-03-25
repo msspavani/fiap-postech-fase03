@@ -1,0 +1,39 @@
+name: .NET CI
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 🔄 Checkout código
+      uses: actions/checkout@v3
+
+    - name: ⚙️ Instalar SDK .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: 📦 Restaurar dependências
+      run: dotnet restore
+
+    - name: 🛠️ Build da solution
+      run: dotnet build --configuration Release --no-restore
+
+    - name: ✅ Testes de Unidade
+      run: dotnet test FiAP.TC.Fase03.ContatosAPI.UnitTest/FiAP.TC.Fase03.ContatosAPI.UnitTest.csproj --no-build --configuration Release --logger "trx" --results-directory "TestResults/Unit"
+
+    - name: ✅ Testes de Integração
+      run: dotnet test FIAP.TC.Fase03.ContatosAPI.IntegrationTests/FIAP.TC.Fase03.ContatosAPI.IntegrationTests.csproj --no-build --configuration Release --logger "trx" --results-directory "TestResults/Integration"
+
+    - name: 📤 Publicar resultados de teste
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: TestResults
+        path: TestResults
