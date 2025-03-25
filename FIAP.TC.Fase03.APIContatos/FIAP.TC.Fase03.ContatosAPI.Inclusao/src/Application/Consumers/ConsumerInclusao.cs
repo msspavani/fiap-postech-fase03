@@ -1,5 +1,5 @@
-using FIAP.TC.Fase03.ContatosAPI.Inclusao.Application.DTOs;
 using FIAP.TC.Fase03.ContatosAPI.Inclusao.Domain.Interfaces.Application;
+using FIAP.TC.Fase03.ContatosAPI.Shared.Domain.Dtos;
 using MassTransit;
 
 namespace FIAP.TC.Fase03.ContatosAPI.Inclusao.Application.Consumers;
@@ -12,7 +12,7 @@ public class ConsumerInclusao : IConsumer<MensagemInclusaoDTO>
     public ConsumerInclusao(ILogger<ConsumerInclusao> logger, IServiceInclusao serviceInclusao)
     {
         _logger = logger;
-        this._serviceInclusao = serviceInclusao;
+        _serviceInclusao = serviceInclusao;
     }
 
     public Task Consume(ConsumeContext<MensagemInclusaoDTO> context)

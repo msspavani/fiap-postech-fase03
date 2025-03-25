@@ -6,6 +6,7 @@ namespace FIAP.TC.Fase03.ContatosAPI.IntegrationTests;
 public class FakeContatoRepository : IContatoRepository
 {
     public static bool ContatoAtualizado = false;
+    public static bool ContatoCriado = false;
 
     public Task<Contato> ObterPorIdAsync(Guid id)
     {
@@ -15,6 +16,11 @@ public class FakeContatoRepository : IContatoRepository
     public Task AtualizarAsync(Contato contato)
     {
         ContatoAtualizado = true;
+        return Task.CompletedTask;
+    }
+    public Task AdicionarAsync(Contato contato)
+    {
+        ContatoCriado = true;
         return Task.CompletedTask;
     }
 }

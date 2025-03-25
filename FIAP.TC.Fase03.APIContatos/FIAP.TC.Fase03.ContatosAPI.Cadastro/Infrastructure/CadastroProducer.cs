@@ -6,32 +6,34 @@ namespace FIAP.TC.Fase03.ContatosAPI.Cadastro.Infrastructure;
 public class CadastroProducer
 {
  
-    private readonly IPublishEndpoint _publishEndpoint;
+
     private readonly ILogger<CadastroProducer> _logger;
+    private readonly ISendEndpointProvider _sendEndpointProvider;
 
 
-    public CadastroProducer(IPublishEndpoint publishEndpoint, ILogger<CadastroProducer> logger)
+    public CadastroProducer( ILogger<CadastroProducer> logger, ISendEndpointProvider sendEndpointProvider)
     {
-        _publishEndpoint = publishEndpoint;
         _logger = logger;
+        _sendEndpointProvider = sendEndpointProvider;
     }
 
     public async Task PublishMessageAsync<T>(string queueName, T message) where T : class
     {
         try
         {
-            _logger.LogInformation("Publiando mensagem em : {queueName}", queueName);
+            _logger.LogInformation("Publicando mensagem em : {queueName}", queueName);
 
-            await _publishEndpoint.Publish(message, context =>
+            var sendEndpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri($"exchange:Fiap.Fase03"));
+
+            await sendEndpoint.Send(message, context =>
             {
                 context.SetRoutingKey(queueName);
-                context.Headers.Set("MT-MessageType", "Fiap.Fase03");
             });
 
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Erro ao publicar messagem {erro}", e.Message);
+            _logger.LogError(e, "{hora}::: Erro ao publicar messagem {erro}",DateTime.Now, e.Message);
             throw;
         }
     }

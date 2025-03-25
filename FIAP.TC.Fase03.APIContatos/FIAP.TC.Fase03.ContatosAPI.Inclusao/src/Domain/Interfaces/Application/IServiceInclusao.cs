@@ -1,4 +1,4 @@
-using FIAP.TC.Fase03.ContatosAPI.Inclusao.Application.DTOs;
+using FIAP.TC.Fase03.ContatosAPI.Shared.Domain.Dtos;
 
 namespace FIAP.TC.Fase03.ContatosAPI.Inclusao.Domain.Interfaces.Application;
 
