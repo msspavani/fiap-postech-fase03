@@ -17,20 +17,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x' 
 
-      
       - name: Restore dependencies
         run: dotnet restore FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.APIContatos.sln
 
-      
       - name: Build
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.APIContatos.sln --configuration Release --no-restore
 
-  
       - name: Run tests
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.APIContatos.sln --no-build --verbosity normal
