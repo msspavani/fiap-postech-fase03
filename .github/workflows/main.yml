@@ -33,7 +33,7 @@ jobs:
 
     - name: 📤 Publicar resultados de teste
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: TestResults
         path: TestResults
