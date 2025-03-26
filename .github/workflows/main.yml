@@ -25,7 +25,7 @@ jobs:
 
       
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.APIContatos.sln
 
       
       - name: Build
