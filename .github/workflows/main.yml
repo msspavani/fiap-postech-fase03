@@ -1,39 +1,36 @@
-name: .NET CI
+name: Build and Test 
 
 on:
   push:
-    branches: [ "main", "develop" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main", "develop" ]
+    branches:
+      - main
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-    - name: 🔄 Checkout código
-      uses: actions/checkout@v3
+    
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: ⚙️ Instalar SDK .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '8.0.x'
 
-    - name: 📦 Restaurar dependências
-      run: dotnet restore
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x' 
 
-    - name: 🛠️ Build da solution
-      run: dotnet build --configuration Release --no-restore
+      
+      - name: Restore dependencies
+        run: dotnet restore
 
-    - name: ✅ Testes de Unidade
-      run: dotnet test FiAP.TC.Fase03.ContatosAPI.UnitTest/FiAP.TC.Fase03.ContatosAPI.UnitTest.csproj --no-build --configuration Release --logger "trx" --results-directory "TestResults/Unit"
+      
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
 
-    - name: ✅ Testes de Integração
-      run: dotnet test FIAP.TC.Fase03.ContatosAPI.IntegrationTests/FIAP.TC.Fase03.ContatosAPI.IntegrationTests.csproj --no-build --configuration Release --logger "trx" --results-directory "TestResults/Integration"
-
-    - name: 📤 Publicar resultados de teste
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: TestResults
-        path: TestResults
+  
+      - name: Run tests
+        run: dotnet test --no-build --verbosity normal
