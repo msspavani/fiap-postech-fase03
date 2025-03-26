@@ -23,10 +23,10 @@ jobs:
           dotnet-version: '8.0.x' 
 
       - name: Restore dependencies
-        run: dotnet restore FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.APIContatos.sln
+        run: dotnet restore FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.ContatosAPI.sln
 
       - name: Build
-        run: dotnet build FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.APIContatos.sln --configuration Release --no-restore
+        run: dotnet build FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.ContatosAPI.sln --configuration Release --no-restore
 
       - name: Run tests
-        run: dotnet test FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.APIContatos.sln --no-build --verbosity normal
+        run: dotnet test FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.ContatosAPI.sln --no-build --verbosity normal
