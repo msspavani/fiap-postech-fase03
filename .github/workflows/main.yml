@@ -29,4 +29,4 @@ jobs:
         run: dotnet build FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.ContatosAPI.sln --configuration Release --no-restore
 
       - name: Run tests
-        run: dotnet test FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.ContatosAPI.IntegrationTests/FIAP.TC.Fase03.ContatosAPI.IntegrationTests.csproj --no-build --verbosity normal
+        run: dotnet test FIAP.TC.Fase03.APIContatos/FiAP.TC.Fase03.ContatosAPI.UnitTest/FiAP.TC.Fase03.ContatosAPI.UnitTest.csproj
