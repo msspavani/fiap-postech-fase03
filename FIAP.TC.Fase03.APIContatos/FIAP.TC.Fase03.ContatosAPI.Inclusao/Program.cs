@@ -2,6 +2,7 @@ using System.Data;
 using System.Reflection;
 using FIAP.TC.Fase03.ContatosAPI.Inclusao;
 using FIAP.TC.Fase03.ContatosAPI.Inclusao.Application.Consumers;
+using FIAP.TC.Fase03.ContatosAPI.Inclusao.Application.DTOs;
 using FIAP.TC.Fase03.ContatosAPI.Inclusao.Application.Services;
 using FIAP.TC.Fase03.ContatosAPI.Inclusao.Domain.Interfaces.Application;
 using FIAP.TC.Fase03.ContatosAPI.Inclusao.Domain.Interfaces.Repositories;
@@ -24,10 +25,10 @@ builder.Services.AddMediatR(cfg =>
 
 builder.Services.AddScoped<IContatoRepository, ContatoRepository>();
 builder.Services.AddScoped<IServiceInclusao, InclusaoService>();
-
 builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<ConsumerInclusao>();
+
     x.UsingRabbitMq((context, cfg) =>
     {
         cfg.Host("localhost", "/", host =>
@@ -35,12 +36,20 @@ builder.Services.AddMassTransit(x =>
             host.Username("guest");
             host.Password("guest");
         });
-        
-        cfg.ReceiveEndpoint("Create", e =>
+
+        cfg.ReceiveEndpoint("CreateQueue", e =>
         {
+            e.ConfigureConsumeTopology = false;
+
+            e.Bind("Fiap.Fase03", bind =>
+            {
+                bind.ExchangeType = "direct";
+                bind.RoutingKey = "Create";
+            });
+
             e.ConfigureConsumer<ConsumerInclusao>(context);
         });
-        
+
     });
 });
 

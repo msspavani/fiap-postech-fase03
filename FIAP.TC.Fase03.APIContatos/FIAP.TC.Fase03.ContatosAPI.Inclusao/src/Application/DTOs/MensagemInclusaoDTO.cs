@@ -10,3 +10,8 @@ public class MensagemInclusaoDTO
     public string Email { get; private set; }
     public string Ddd { get; private set; }
 }
+
+public class MensagemEnvelope
+{
+    public object Payload { get; set; } = default!;
+}

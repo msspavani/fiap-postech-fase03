@@ -1,3 +1,4 @@
+using FIAP.TC.Fase03.ContatosAPI.Cadastro.Domain;
 using FIAP.TC.Fase03.ContatosAPI.Cadastro.Domain.Interfaces;
 using MassTransit;
 
@@ -5,33 +6,32 @@ namespace FIAP.TC.Fase03.ContatosAPI.Cadastro.Infrastructure;
 
 public class CadastroProducer
 {
- 
-    private readonly IPublishEndpoint _publishEndpoint;
     private readonly ILogger<CadastroProducer> _logger;
+    private readonly ISendEndpointProvider _sendEndpointProvider;
 
 
-    public CadastroProducer(IPublishEndpoint publishEndpoint, ILogger<CadastroProducer> logger)
+    public CadastroProducer(ISendEndpointProvider sendEndpointProvider, ILogger<CadastroProducer> logger)
     {
-        _publishEndpoint = publishEndpoint;
+        _sendEndpointProvider = sendEndpointProvider;
         _logger = logger;
     }
 
-    public async Task PublishMessageAsync<T>(string queueName, T message) where T : class
+    public async Task PublishMessageAsync<T>(string routingKey, T message) where T : class
     {
         try
         {
-            _logger.LogInformation("Publiando mensagem em : {queueName}", queueName);
+            var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("exchange:Fiap.Fase03"));
 
-            await _publishEndpoint.Publish(message, context =>
+            await endpoint.Send(message, context =>
             {
-                context.SetRoutingKey(queueName);
-                context.Headers.Set("MT-MessageType", "Fiap.Fase03");
+                context.Headers.Set("RoutingKey", routingKey);
             });
 
+            _logger.LogInformation("Mensagem publicada com sucesso.");
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            _logger.LogError(e, "Erro ao publicar messagem {erro}", e.Message);
+            _logger.LogError(ex, "Erro ao publicar mensagem: {Message}", ex.Message);
             throw;
         }
     }

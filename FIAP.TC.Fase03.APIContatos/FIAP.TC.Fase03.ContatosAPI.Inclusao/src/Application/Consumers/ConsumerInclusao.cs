@@ -4,7 +4,7 @@ using MassTransit;
 
 namespace FIAP.TC.Fase03.ContatosAPI.Inclusao.Application.Consumers;
 
-public class ConsumerInclusao : IConsumer<MensagemInclusaoDTO>
+public class ConsumerInclusao : IConsumer<MensagemEnvelope>
 {
     private readonly ILogger<ConsumerInclusao> _logger;
     private readonly IServiceInclusao _serviceInclusao;
@@ -15,10 +15,15 @@ public class ConsumerInclusao : IConsumer<MensagemInclusaoDTO>
         this._serviceInclusao = serviceInclusao;
     }
 
-    public Task Consume(ConsumeContext<MensagemInclusaoDTO> context)
+    public Task Consume(ConsumeContext<MensagemEnvelope> context)
     {
-        _logger.LogInformation("Message Received on INSERT worker : {messageId}", context.Message.MessageId);
-        _serviceInclusao.Processar(context.Message);
+        
+        var rawPayload = context.Message.Payload;
+        
+        _logger.LogInformation("Message Received on INSERT worker ");
+        
+        if(rawPayload is MensagemInclusaoDTO)
+            _serviceInclusao.Processar((MensagemInclusaoDTO)rawPayload);
 
         return Task.CompletedTask;
     }

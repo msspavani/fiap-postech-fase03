@@ -1,6 +1,7 @@
 using System.Text.Json;
 using FIAP.TC.Fase03.ContatosAPI.Atualizacao.Application.DTOs;
 using FIAP.TC.Fase03.ContatosAPI.Cadastro.Application;
+using FIAP.TC.Fase03.ContatosAPI.Cadastro.Domain;
 using FIAP.TC.Fase03.ContatosAPI.Cadastro.Domain.Interfaces;
 using FIAP.TC.Fase03.ContatosAPI.Cadastro.Infrastructure;
 using MassTransit;
@@ -20,31 +21,42 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
-        builder.Services.AddMassTransit(busConfigurator =>
+        builder.Services.AddMassTransit(x =>
         {
-            busConfigurator.SetKebabCaseEndpointNameFormatter();
-            
-            
-
-            busConfigurator.UsingRabbitMq((context, cfg) =>
+            x.UsingRabbitMq((context, cfgRaw) =>
             {
-                cfg.Host("localhost", 5672, "/", h =>
+                var cfg = (IRabbitMqBusFactoryConfigurator)cfgRaw;
+
+                cfg.Host("localhost", "/", h =>
                 {
                     h.Username("guest");
                     h.Password("guest");
                 });
-               
-                cfg.Message<AtualizacaoContatoDto>(x 
-                    => x.SetEntityName("Fiap.Fase03"));
 
-                cfg.Publish<AtualizacaoContatoDto>(x
-                    =>
+                // Usa a exchange 'Fiap.Fase03' para a mensagem MensagemEnvelope
+                cfg.Message<MensagemEnvelope>(x =>
                 {
-                    x.ExchangeType = "direct";
-                    
+                    x.SetEntityName("Fiap.Fase03"); // não será criada, apenas usada
                 });
+
+                cfg.Send<MensagemEnvelope>((IRabbitMqMessageSendTopologyConfigurator<MensagemEnvelope> x) =>
+                {
+                    x.UseRoutingKeyFormatter(context =>
+                        context.Headers.TryGetHeader("RoutingKey", out var value)
+                            ? value?.ToString() ?? "Create"
+                            : "Create"
+                    );
+
+                    // 🔴 NÃO use ConfigureConsumeTopology aqui — não existe nesse contexto
+                });
+
+                // ⚠️ NÃO configure endpoints aqui — esse é só um producer
             });
         });
+
+
+
+
 
         builder.Services.AddScoped<IContatoService, ContatoService>();
         builder.Services.AddScoped<CadastroProducer>();

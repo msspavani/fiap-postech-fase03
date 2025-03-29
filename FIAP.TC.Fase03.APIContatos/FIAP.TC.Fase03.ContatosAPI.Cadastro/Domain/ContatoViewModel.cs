@@ -27,3 +27,8 @@ public class ContatoRemoveDto (string contatoId)
     public Ulid MessageId { get; set; } = Ulid.NewUlid();
     public Guid ContatoId { get; } = new Guid(contatoId);   
 }
+
+public class MensagemEnvelope
+{
+    public object Payload { get; set; } = default!;
+}
