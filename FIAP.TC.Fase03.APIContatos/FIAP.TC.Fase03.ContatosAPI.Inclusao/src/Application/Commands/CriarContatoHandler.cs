@@ -1,4 +1,4 @@
-using FIAP.TC.FASE01.APIContatos.Domain.Events;
+using FIAP.TC.Fase03.ContatosAPI.Inclusao.Application.Events;
 using FIAP.TC.Fase03.ContatosAPI.Inclusao.Domain.Entity;
 using FIAP.TC.Fase03.ContatosAPI.Inclusao.Domain.Interfaces.Repositories;
 using MediatR;
@@ -19,14 +19,22 @@ public class CriarContatoCommandHandler : IRequestHandler<CriarContatoCommand, G
 
     public async Task<Guid> Handle(CriarContatoCommand request, CancellationToken cancellationToken)
     {
-        
-        var contato = new Contato(request.Nome, request.Telefone, request.Email, request.Ddd);
-        
-        await _contatoRepository.AdicionarAsync(contato);
-        
-        var evento = new ContatoCriadoEvent(contato.Id, contato.Nome, contato.Email);
-        await _mediator.Publish(evento, cancellationToken);
 
-        return contato.Id;
+        try
+        {
+            var contato = new Contato(request.Nome, request.Telefone, request.Email, request.Ddd);
+            
+            await _contatoRepository.AdicionarAsync(contato);
+            
+            var evento = new ContatoCriadoEvent(contato.Id, contato.Nome, contato.Email);
+            await _mediator.Publish(evento, cancellationToken);
+
+            return contato.Id;
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+
     }
 }

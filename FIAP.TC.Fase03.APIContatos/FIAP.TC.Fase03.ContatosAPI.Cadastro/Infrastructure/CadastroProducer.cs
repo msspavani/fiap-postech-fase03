@@ -1,5 +1,6 @@
 using FIAP.TC.Fase03.ContatosAPI.Cadastro.Domain;
 using FIAP.TC.Fase03.ContatosAPI.Cadastro.Domain.Interfaces;
+using FIAP.TC.FASE03.Shared.Library.Models;
 using MassTransit;
 
 namespace FIAP.TC.Fase03.ContatosAPI.Cadastro.Infrastructure;
@@ -7,10 +8,10 @@ namespace FIAP.TC.Fase03.ContatosAPI.Cadastro.Infrastructure;
 public class CadastroProducer
 {
     private readonly ILogger<CadastroProducer> _logger;
-    private readonly ISendEndpointProvider _sendEndpointProvider;
+    private readonly IPublishEndpoint _sendEndpointProvider;
 
 
-    public CadastroProducer(ISendEndpointProvider sendEndpointProvider, ILogger<CadastroProducer> logger)
+    public CadastroProducer(IPublishEndpoint sendEndpointProvider, ILogger<CadastroProducer> logger)
     {
         _sendEndpointProvider = sendEndpointProvider;
         _logger = logger;
@@ -20,14 +21,25 @@ public class CadastroProducer
     {
         try
         {
-            var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("exchange:Fiap.Fase03"));
+            if (string.IsNullOrWhiteSpace(routingKey))
+                throw new ArgumentException("RoutingKey não pode ser vazia", nameof(routingKey));
 
-            await endpoint.Send(message, context =>
+            
+            _ = typeof(T).Name switch
+            {
+                nameof(MensagemEnvelopeCreate) => "Fiap.Fase03.Create",
+                nameof(MensagemEnvelopeRemove) => "Fiap.Fase03.Remove",
+                nameof(MensagemEnvelopeUpdate) => "Fiap.Fase03.Update",
+                _ => throw new ArgumentException($"Tipo de mensagem não suportado: {typeof(T).Name}")
+            };
+
+            
+            await _sendEndpointProvider.Publish(message, context =>
             {
                 context.Headers.Set("RoutingKey", routingKey);
             });
 
-            _logger.LogInformation("Mensagem publicada com sucesso.");
+            _logger.LogInformation("Mensagem publicada com sucesso para tipo {MessageType} com routingKey {RoutingKey}", typeof(T).Name, routingKey);
         }
         catch (Exception ex)
         {
@@ -35,4 +47,5 @@ public class CadastroProducer
             throw;
         }
     }
+
 }

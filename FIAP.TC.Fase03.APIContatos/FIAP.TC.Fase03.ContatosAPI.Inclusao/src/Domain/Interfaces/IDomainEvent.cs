@@ -1,4 +1,4 @@
-namespace FIAP.TC.FASE01.APIContatos.Domain.Interfaces;
+namespace FIAP.TC.Fase03.ContatosAPI.Inclusao.Domain.Interfaces;
 
 public interface IDomainEvent
 {

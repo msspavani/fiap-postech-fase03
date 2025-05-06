@@ -30,7 +30,7 @@ public class ContatosController : ControllerBase
     }
 
     [HttpPut("{everything}")]
-    public async ValueTask<IActionResult> AtualizarContato([FromBody] ContatoViewModel? contato)
+    public async ValueTask<IActionResult> AtualizarContato([FromBody] ContatoViewModel? contato, string everything)
     {
         if (!ModelState.IsValid)
         {
@@ -48,7 +48,7 @@ public class ContatosController : ControllerBase
         Console.WriteLine($"Recebido: {JsonSerializer.Serialize(contato)}");
 
 
-        await _contatoService.Update(contato);
+        await _contatoService.Update(contato, everything);
         _logger.LogInformation("Contato enviado para atualização.");
 
         return Ok();

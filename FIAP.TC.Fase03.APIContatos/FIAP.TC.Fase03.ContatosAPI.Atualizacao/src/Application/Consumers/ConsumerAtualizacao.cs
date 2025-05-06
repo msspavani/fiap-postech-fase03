@@ -1,28 +1,57 @@
 using System.Text.Json;
+using FIAP.TC.Fase03.ContatosAPI.Atualizacao.Application.Commands;
 using FIAP.TC.Fase03.ContatosAPI.Atualizacao.Application.DTOs;
 using FIAP.TC.Fase03.ContatosAPI.Atualizacao.Domain.Interfaces.Application;
+using FIAP.TC.FASE03.Shared.Library.Models;
 using MassTransit;
+using MediatR;
+using Newtonsoft.Json;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace FIAP.TC.Fase03.ContatosAPI.Atualizacao.Application.Consumers;
 
-public class ConsumerAtualizacao : IConsumer<AtualizacaoContatoDto>
+public class ConsumerAtualizacao : IConsumer<MensagemEnvelopeUpdate>
 {
+    private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<ConsumerAtualizacao> _logger;
-    private readonly IAtualizacaoService _atualizacaoService;
 
-    public ConsumerAtualizacao(IAtualizacaoService atualizacaoService, ILogger<ConsumerAtualizacao> logger)
+    public ConsumerAtualizacao(IAtualizacaoService atualizacaoService, ILogger<ConsumerAtualizacao> logger, IServiceProvider serviceProvider)
     {
-        _atualizacaoService = atualizacaoService;
         _logger = logger;
+        _serviceProvider = serviceProvider;
     }
 
-    public Task Consume(ConsumeContext<AtualizacaoContatoDto> context)
+    public async Task Consume(ConsumeContext<MensagemEnvelopeUpdate> context)
     {
-        _logger.LogInformation("Mensagem recebida no Consumer: {MessageJson}", JsonSerializer.Serialize(context.Message));
+        try
+        {
+            using var scope = _serviceProvider.CreateScope();
 
-        _logger.LogInformation("Message Received on UPDATE worker : {messageId}", context.Message.MessageId);
-        _atualizacaoService.Processar(context.Message);
+            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+            var element = (JsonElement)context.Message.Payload;
+            var payload = JsonConvert.DeserializeObject<AtualizacaoContatoDto>(element.GetRawText());
 
-        return Task.CompletedTask;
+            _logger.LogInformation("Mensagem recebida no INSERT worker: {@Payload}", payload);
+
+            if (payload != null)
+            {
+                var command = new AtualizarContatoCommand(payload.ContatoId,  
+                                                          payload.Nome, 
+                                                          payload.Telefone, 
+                                                          payload.Email, 
+                                                          payload.Ddd);
+                
+                await mediator.Send(command); 
+            }
+            
+            
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao processar mensagem no UPDATE worker.");
+            throw;
+        }
+
+
     }
 }

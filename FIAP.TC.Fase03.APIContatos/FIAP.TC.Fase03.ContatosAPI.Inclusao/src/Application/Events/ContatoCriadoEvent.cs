@@ -1,7 +1,8 @@
-using FIAP.TC.FASE01.APIContatos.Domain.Interfaces;
+
+using FIAP.TC.Fase03.ContatosAPI.Inclusao.Domain.Interfaces;
 using MediatR;
 
-namespace FIAP.TC.FASE01.APIContatos.Domain.Events;
+namespace FIAP.TC.Fase03.ContatosAPI.Inclusao.Application.Events;
 
 public class ContatoCriadoEvent : IDomainEvent, INotification
 {

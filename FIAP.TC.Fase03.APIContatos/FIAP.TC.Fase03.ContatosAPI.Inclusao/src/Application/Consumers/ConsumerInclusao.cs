@@ -1,30 +1,48 @@
+using System.Text.Json;
+using FIAP.TC.Fase03.ContatosAPI.Inclusao.Application.Commands;
 using FIAP.TC.Fase03.ContatosAPI.Inclusao.Application.DTOs;
 using FIAP.TC.Fase03.ContatosAPI.Inclusao.Domain.Interfaces.Application;
+using FIAP.TC.FASE03.Shared.Library.Models;
 using MassTransit;
+using MediatR;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace FIAP.TC.Fase03.ContatosAPI.Inclusao.Application.Consumers;
 
-public class ConsumerInclusao : IConsumer<MensagemEnvelope>
+public class ConsumerInclusao : IConsumer<MensagemEnvelopeCreate>
 {
+    private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<ConsumerInclusao> _logger;
-    private readonly IServiceInclusao _serviceInclusao;
 
-    public ConsumerInclusao(ILogger<ConsumerInclusao> logger, IServiceInclusao serviceInclusao)
+    public ConsumerInclusao(IServiceProvider serviceProvider, ILogger<ConsumerInclusao> logger)
     {
+        _serviceProvider = serviceProvider;
         _logger = logger;
-        this._serviceInclusao = serviceInclusao;
     }
 
-    public Task Consume(ConsumeContext<MensagemEnvelope> context)
+    public async Task Consume(ConsumeContext<MensagemEnvelopeCreate> context)
     {
-        
-        var rawPayload = context.Message.Payload;
-        
-        _logger.LogInformation("Message Received on INSERT worker ");
-        
-        if(rawPayload is MensagemInclusaoDTO)
-            _serviceInclusao.Processar((MensagemInclusaoDTO)rawPayload);
+        try
+        {
+            using var scope = _serviceProvider.CreateScope();
 
-        return Task.CompletedTask;
+            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+            var element = (JsonElement)context.Message.Payload;
+            var payload = JsonConvert.DeserializeObject<MensagemInclusaoDTO>(element.GetRawText());
+
+            _logger.LogInformation("Mensagem recebida no INSERT worker: {@Payload}", payload);
+
+            if (payload != null)
+            {
+                var command = new CriarContatoCommand(payload.Nome, payload.Telefone, payload.Email, payload.Ddd);
+                await mediator.Send(command); 
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao processar mensagem no INSERT worker.");
+            throw;
+        }
     }
 }

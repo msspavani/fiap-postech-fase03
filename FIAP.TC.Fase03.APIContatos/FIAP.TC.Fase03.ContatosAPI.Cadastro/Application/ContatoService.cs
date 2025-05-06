@@ -1,6 +1,7 @@
 using FIAP.TC.Fase03.ContatosAPI.Cadastro.Domain;
 using FIAP.TC.Fase03.ContatosAPI.Cadastro.Domain.Interfaces;
 using FIAP.TC.Fase03.ContatosAPI.Cadastro.Infrastructure;
+using FIAP.TC.FASE03.Shared.Library.Models;
 using MassTransit;
 
 namespace FIAP.TC.Fase03.ContatosAPI.Cadastro.Application;
@@ -16,19 +17,25 @@ public class ContatoService : IContatoService
 
     public ValueTask Create(ContatoViewModel? contato)
     {
-        _ = _producer.PublishMessageAsync(
+        _ = _producer.PublishMessageAsync<MensagemEnvelopeCreate>(
             nameof(Create), 
-            new ContatoDto(contato.ContatoId, contato.Nome, contato.Telefone, contato.Email, contato.Ddd)
+            new MensagemEnvelopeCreate()
+            {
+                Payload = new ContatoDto(contato.ContatoId, contato.Nome, contato.Telefone, contato.Email, contato.Ddd)
+            }
         );
         
         return default;
     }
 
-    public ValueTask Update(ContatoViewModel contato)
+    public ValueTask Update(ContatoViewModel contato, string everything)
     {
-        _ = _producer.PublishMessageAsync(
+        _ = _producer.PublishMessageAsync<MensagemEnvelopeUpdate>(
             nameof(Update), 
-            new ContatoDto(contato.ContatoId, contato.Nome, contato.Telefone, contato.Email, contato.Ddd)
+            new MensagemEnvelopeUpdate()
+            {
+                Payload = new ContatoDto(new Guid(everything), contato.Nome, contato.Telefone, contato.Email, contato.Ddd)
+            }
         );
         
         return default;
@@ -36,9 +43,9 @@ public class ContatoService : IContatoService
 
     public ValueTask Remove(string everything)
     {
-        _ = _producer.PublishMessageAsync(
+        _ = _producer.PublishMessageAsync<MensagemEnvelopeRemove>(
             nameof(Remove), 
-            new ContatoRemoveDto(everything)
+            new MensagemEnvelopeRemove(){ Payload = new ContatoRemoveDto(everything)}
         );
         
         return default;

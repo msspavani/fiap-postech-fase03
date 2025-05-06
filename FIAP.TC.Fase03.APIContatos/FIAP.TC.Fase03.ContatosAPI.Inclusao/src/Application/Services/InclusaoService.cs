@@ -1,6 +1,8 @@
 using FIAP.TC.Fase03.ContatosAPI.Inclusao.Application.Commands;
 using FIAP.TC.Fase03.ContatosAPI.Inclusao.Application.DTOs;
 using FIAP.TC.Fase03.ContatosAPI.Inclusao.Domain.Interfaces.Application;
+using FIAP.TC.FASE03.Shared.Library.Models;
+using MassTransit;
 using MediatR;
 
 namespace FIAP.TC.Fase03.ContatosAPI.Inclusao.Application.Services;
@@ -29,4 +31,5 @@ public class InclusaoService : IServiceInclusao
         
         return Task.CompletedTask;
     }
+    
 }

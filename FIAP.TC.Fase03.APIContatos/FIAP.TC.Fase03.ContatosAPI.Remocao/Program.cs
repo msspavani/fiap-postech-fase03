@@ -6,6 +6,7 @@ using FIAP.TC.Fase03.ContatosAPI.Remocao.Application.Services;
 using FIAP.TC.Fase03.ContatosAPI.Remocao.Domain.Interfaces.Application;
 using FIAP.TC.Fase03.ContatosAPI.Remocao.Domain.Interfaces.Repositories;
 using FIAP.TC.Fase03.ContatosAPI.Remocao.Infrastructure.Repositories;
+using FIAP.TC.FASE03.Shared.Library.Models;
 using MassTransit;
 using Microsoft.Data.SqlClient;
 
@@ -27,10 +28,13 @@ builder.Services.AddMediatR(cfg =>
 builder.Services.AddScoped<IContatoRepository, ContatoRepository>();
 builder.Services.AddScoped<IRemocaoService, ServiceRemocao>();
 
-
 builder.Services.AddMassTransit(x =>
 {
+    x.SetKebabCaseEndpointNameFormatter();
+
+    // Registra apenas o consumer da fila de Delete
     x.AddConsumer<ConsumerRemocao>();
+
     x.UsingRabbitMq((context, cfg) =>
     {
         cfg.Host("localhost", "/", host =>
@@ -38,12 +42,26 @@ builder.Services.AddMassTransit(x =>
             host.Username("guest");
             host.Password("guest");
         });
-        
-        cfg.ReceiveEndpoint("Remove", e =>
+
+        // Declara a exchange Fiap.Fase03.Remove como tipo direct
+        cfg.Message<MensagemEnvelopeRemove>(m =>
         {
-            e.ConfigureConsumer<ConsumerRemocao>(context);
+            m.SetEntityName("Fiap.Fase03.Remove");
         });
+
         
+        cfg.ReceiveEndpoint("RemoveQueue", e =>
+        {
+            e.ConfigureConsumeTopology = false;
+
+            e.ConfigureConsumer<ConsumerRemocao>(context);
+
+            e.Bind("Fiap.Fase03.Remove", x =>
+            {
+                x.RoutingKey = "Remove";
+                x.ExchangeType = "direct";
+            });
+        });
     });
 });
 

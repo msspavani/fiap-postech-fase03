@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using MassTransit.Serialization;
 
 namespace FIAP.TC.Fase03.ContatosAPI.Cadastro.Domain;
 
@@ -28,7 +29,3 @@ public class ContatoRemoveDto (string contatoId)
     public Guid ContatoId { get; } = new Guid(contatoId);   
 }
 
-public class MensagemEnvelope
-{
-    public object Payload { get; set; } = default!;
-}
