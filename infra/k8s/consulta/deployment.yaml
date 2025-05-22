@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consulta-fn
+  labels:
+    app: consulta-fn
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: consulta-fn
+  template:
+    metadata:
+      labels:
+        app: consulta-fn
+    spec:
+      containers:
+        - name: consulta-fn
+          image: mpavani/consulta-fn:latest
+          ports:
+            - containerPort: 80

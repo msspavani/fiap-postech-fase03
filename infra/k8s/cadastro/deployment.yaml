@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cadastro-api
+  labels:
+    app: cadastro-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cadastro-api
+  template:
+    metadata:
+      labels:
+        app: cadastro-api
+    spec:
+      containers:
+        - name: cadastro-api
+          image: seu-usuario-dockerhub/cadastro-api:latest
+          ports:
+            - containerPort: 5141
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Development"
+            - name: ConnectionStrings__SqlServerConnection
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: SqlServerConnection
+            - name: RabbitMq__Host
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: RabbitMqHost
+            - name: RabbitMq__Port
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: RabbitMqPort

@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: remocao-worker
+  labels:
+    app: remocao-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: remocao-worker
+  template:
+    metadata:
+      labels:
+        app: remocao-worker
+    spec:
+      containers:
+        - name: remocao-worker
+          image: mpavani/remocao-worker:latest
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Development"
+            - name: RabbitMq__Host
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: RabbitMqHost
+            - name: RabbitMq__Port
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: RabbitMqPort

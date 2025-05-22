@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inclusao-worker
+  labels:
+    app: inclusao-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inclusao-worker
+  template:
+    metadata:
+      labels:
+        app: inclusao-worker
+    spec:
+      containers:
+        - name: inclusao-worker
+          image: mpavani/inclusao-worker:latest
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Development"
+            - name: RabbitMq__Host
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: RabbitMqHost
+            - name: RabbitMq__Port
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: RabbitMqPort

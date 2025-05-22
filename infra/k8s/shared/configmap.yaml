@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  SqlServerConnection: "Server=sqlserver;Database=TC_01;User Id=ApiUser;Password=SenhaMuitoForte@123;TrustServerCertificate=True;"
+  RabbitMqHost: "rabbitmq"
+  RabbitMqPort: "5672"

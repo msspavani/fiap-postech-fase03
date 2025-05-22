@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - cadastro
+  - gateway
+  - alteracao
+  - inclusao
+  - remocao
+  - consulta
+
+# ConfigMap compartilhado
+configMapGenerator:
+  - name: app-config
+    literals:
+      - RabbitMqHost=your-rabbitmq-host
+      - RabbitMqPort=5672
