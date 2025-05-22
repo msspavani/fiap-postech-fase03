@@ -1,46 +1,40 @@
-name: CI/CD Local com Runner Self-Hosted
+name: CI/CD Local Runner
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-env:
-  DOTNET_ROOT: /usr/share/dotnet
-  PATH: /usr/share/dotnet:$PATH
-  
+    branches: [ "main" ]
+  workflow_dispatch:
+
 jobs:
-  build-and-deploy:
+  build-test-deploy:
     runs-on: self-hosted
 
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+      DOTNET_NOLOGO: true
+      COMPOSE_DOCKER_CLI_BUILD: 1
+      DOCKER_BUILDKIT: 1
+
     steps:
-      - name:  Checkout código
-        uses: actions/checkout@v4
+    - name: 📥 Checkout do Código
+      uses: actions/checkout@v4
 
-      - name: Verificar .NET já instalado
-        run: dotnet --info
+    - name: 🔧 Instalação do .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
 
-      - name: Executar testes de unidade
-        run: dotnet test --no-restore --verbosity normal
+    - name: 🧪 Testes de Unidade
+      run: dotnet test ./FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.ContatosAPI.UnitTest
 
-      - name: Build imagens Docker
-        run: |
-          docker build -t mpavani/cadastro-api:latest -f FIAP.TC.Fase03.ContatosAPI.Cadastro/Dockerfile .
-          docker build -t mpavani/gateway-api:latest -f FIAP.TC.Fase03.ContatosAPI.Gateway/Dockerfile .
-          docker build -t mpavani/atualizacao-worker:latest -f FIAP.TC.Fase03.ContatosAPI.Atualizacao/Dockerfile .
-          docker build -t mpavani/inclusao-worker:latest -f FIAP.TC.Fase03.ContatosAPI.Inclusao/Dockerfile .
-          docker build -t mpavani/remocao-worker:latest -f FIAP.TC.Fase03.ContatosAPI.Remocao/Dockerfile .
+    - name: 🐳 Build das Imagens Docker
+      run: |
+        docker build -t mpavani/cadastro-api:latest -f FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.ContatosAPI.Cadastro/Dockerfile .
+        docker build -t mpavani/inclusao-worker:latest -f FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.ContatosAPI.Inclusao/Dockerfile .
+        docker build -t mpavani/remocao-worker:latest -f FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.ContatosAPI.Remocao/Dockerfile .
+        docker build -t mpavani/atualizacao-worker:latest -f FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.ContatosAPI.Atualizacao/Dockerfile .
+        docker build -t mpavani/gateway-api:latest -f FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.ContatosAPI.Gateway/Dockerfile .
 
-      # - name: 🚢 Push (opcional - se usar Docker Hub)
-      #   run: |
-      #     echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-      #     docker push mpavani/cadastro-api:latest
-      #     docker push mpavani/gateway-api:latest
-      #     docker push mpavani/atualizacao-worker:latest
-      #     docker push mpavani/inclusao-worker:latest
-      #     docker push mpavani/remocao-worker:latest
-
-      - name:  Deploy
-        run: |
-          cd infra/k8s
-          kubectl apply -k .
+    - name: 📦 Aplicar Kustomize no Kubernetes (Minikube)
+      run: |
+        kubectl apply -k infra/k8s
