@@ -22,8 +22,11 @@ jobs:
     - name: 🧪 Verificar .NET já instalado
       run: dotnet --info
 
+    - name: Listar diretorio
+      run: ls -R
+
     - name: 🧪 Testes de Unidade
-      run: dotnet test  ./FiAP.TC.Fase03.ContatosAPI.UnitTest/FiAP.TC.Fase03.ContatosAPI.UnitTest.csproj
+      run: dotnet test  ./FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.ContatosAPI.UnitTest/FIAP.TC.Fase03.ContatosAPI.UnitTest.csproj
 
     - name: 🐳 Build das Imagens Docker
       run: |
