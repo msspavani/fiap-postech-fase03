@@ -19,10 +19,8 @@ jobs:
     - name: 📥 Checkout do Código
       uses: actions/checkout@v4
 
-    - name: 🔧 Instalação do .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '8.0.x'
+    - name: 🧪 Verificar .NET já instalado
+      run: dotnet --info
 
     - name: 🧪 Testes de Unidade
       run: dotnet test ./FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.ContatosAPI.UnitTest
