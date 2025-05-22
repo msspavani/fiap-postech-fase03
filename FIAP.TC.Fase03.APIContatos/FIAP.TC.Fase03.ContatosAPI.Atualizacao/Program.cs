@@ -10,6 +10,11 @@ using FIAP.TC.Fase03.ContatosAPI.Atualizacao.Infrastructure.Repositories;
 using FIAP.TC.FASE03.Shared.Library.Models;
 using MassTransit;
 using Microsoft.Data.SqlClient;
+using Prometheus;
+
+
+var metricServer = new KestrelMetricServer(port: 9095); 
+metricServer.Start();
 
 var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddHostedService<Worker>();
@@ -69,4 +74,6 @@ builder.Services.AddMassTransit(x =>
     });
 });
 var host = builder.Build();
+
+
 host.Run();

@@ -8,7 +8,10 @@ using FIAP.TC.Fase03.ContatosAPI.Inclusao.Domain.Interfaces.Repositories;
 using FIAP.TC.Fase03.ContatosAPI.Inclusao.Infrastructure.Repositories;
 using MassTransit;
 using Microsoft.Data.SqlClient;
+using Prometheus;
 
+var metricServer = new KestrelMetricServer(port: 9096); 
+metricServer.Start();
 var builder = Host.CreateApplicationBuilder(args);
 
 builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);

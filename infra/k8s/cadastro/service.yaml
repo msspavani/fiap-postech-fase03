@@ -8,7 +8,8 @@ spec:
   selector:
     app: cadastro-api
   ports:
-    - protocol: TCP
+    - name: http
+      protocol: TCP
       port: 80
       targetPort: 5141
   type: ClusterIP

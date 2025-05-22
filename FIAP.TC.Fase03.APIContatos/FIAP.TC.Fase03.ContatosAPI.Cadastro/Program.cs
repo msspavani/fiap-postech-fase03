@@ -4,6 +4,7 @@ using FIAP.TC.Fase03.ContatosAPI.Cadastro.Domain.Interfaces;
 using FIAP.TC.Fase03.ContatosAPI.Cadastro.Infrastructure;
 using FIAP.TC.FASE03.Shared.Library.Models;
 using MassTransit;
+using Prometheus;
 using Serilog;
 
 namespace FIAP.TC.Fase03.ContatosAPI.Cadastro;
@@ -93,8 +94,21 @@ public class Program
                 app.UseDeveloperExceptionPage();
             }
 
-            app.MapControllers();
+           
+            app.UseRouting();
+            
+            
+            app.UseHttpMetrics(); 
+
             app.UseHttpsRedirection();
+
+            app.UseAuthorization();
+            
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.MapMetrics(); 
+            });
 
             app.Run();
         }

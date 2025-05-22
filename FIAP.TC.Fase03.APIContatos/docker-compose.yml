@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  cadastro-api:
+    build:
+      context: .
+      dockerfile: FIAP.TC.Fase03.ContatosAPI.Cadastro/Dockerfile
+    image: mpavani/cadastro-api:latest
+
+  gateway-api:
+    build:
+      context: .
+      dockerfile: FIAP.TC.Fase03.ContatosAPI.Gateway/Dockerfile
+    image: mpavani/gateway-api:latest
+
+  inclusao-worker:
+    build:
+      context: .
+      dockerfile: FIAP.TC.Fase03.ContatosAPI.Inclusao/Dockerfile
+    image: mpavani/inclusao-worker:latest
+
+  atualizacao-worker:
+    build:
+      context: .
+      dockerfile: FIAP.TC.Fase03.ContatosAPI.Atualizacao/Dockerfile
+    image: mpavani/atualizacao-worker:latest
+
+  remocao-worker:
+    build:
+      context: .
+      dockerfile: FIAP.TC.Fase03.ContatosAPI.Remocao/Dockerfile
+    image: mpavani/remocao-worker:latest
+
+  consulta-api:
+    build:
+      context: .
+      dockerfile: FIAP.TC.Fase03.ContatosAPI.Consulta/Dockerfile
+    image: mpavani/consulta-api:latest
+
