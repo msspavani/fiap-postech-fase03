@@ -23,7 +23,7 @@ jobs:
       run: dotnet --info
 
     - name: 🧪 Testes de Unidade
-      run: dotnet test ./FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.ContatosAPI.UnitTest
+      run: dotnet test ./FiAP.TC.Fase03.ContatosAPI.UnitTest/FiAP.TC.Fase03.ContatosAPI.UnitTest.csproj
 
     - name: 🐳 Build das Imagens Docker
       run: |
