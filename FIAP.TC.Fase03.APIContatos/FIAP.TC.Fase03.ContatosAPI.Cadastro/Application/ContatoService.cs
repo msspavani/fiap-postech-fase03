@@ -34,7 +34,7 @@ public class ContatoService : IContatoService
             nameof(Update), 
             new MensagemEnvelopeUpdate()
             {
-                Payload = new ContatoDto(new Guid(everything), contato.Nome, contato.Telefone, contato.Email, contato.Ddd)
+                Payload = new ContatoDto(contato.ContatoId, contato.Nome, contato.Telefone, contato.Email, contato.Ddd)
             }
         );
         

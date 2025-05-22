@@ -31,7 +31,7 @@ public class ConsumerAtualizacao : IConsumer<MensagemEnvelopeUpdate>
             var element = (JsonElement)context.Message.Payload;
             var payload = JsonConvert.DeserializeObject<AtualizacaoContatoDto>(element.GetRawText());
 
-            _logger.LogInformation("Mensagem recebida no INSERT worker: {@Payload}", payload);
+            _logger.LogInformation("Mensagem recebida no UPDATE worker: {@Payload}", payload);
 
             if (payload != null)
             {

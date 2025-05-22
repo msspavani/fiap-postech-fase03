@@ -1,13 +1,10 @@
 using System.Text.Json;
-using FIAP.TC.Fase03.ContatosAPI.Atualizacao.Application.DTOs;
 using FIAP.TC.Fase03.ContatosAPI.Cadastro.Application;
-using FIAP.TC.Fase03.ContatosAPI.Cadastro.Domain;
 using FIAP.TC.Fase03.ContatosAPI.Cadastro.Domain.Interfaces;
 using FIAP.TC.Fase03.ContatosAPI.Cadastro.Infrastructure;
 using FIAP.TC.FASE03.Shared.Library.Models;
 using MassTransit;
 using Serilog;
-using Serilog.Sinks.Elasticsearch;
 
 namespace FIAP.TC.Fase03.ContatosAPI.Cadastro;
 
@@ -93,6 +90,7 @@ public class Program
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
+                app.UseDeveloperExceptionPage();
             }
 
             app.MapControllers();

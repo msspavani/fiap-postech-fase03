@@ -1,11 +1,10 @@
-using FIAP.TC.Fase03.ContatosAPI.Remocao.Domain.Interfaces.Application;
+
 
 namespace FIAP.TC.Fase03.ContatosAPI.Atualizacao;
 
 public class Worker : BackgroundService
 {
     private readonly ILogger<Worker> _logger;
-    private readonly IRemocaoService _remocaoService;
 
     public Worker(ILogger<Worker> logger)
     {

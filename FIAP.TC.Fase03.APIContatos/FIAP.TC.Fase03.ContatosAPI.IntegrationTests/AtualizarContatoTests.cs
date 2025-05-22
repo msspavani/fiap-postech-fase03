@@ -14,27 +14,33 @@ public class AtualizarContatoTests : IClassFixture<IntegrationTestFixture>
     }
 
     [Fact]
-    public async Task Requisicao_HTTP_Deve_Executar_Handler()
+    public async Task AtualizarContato_DeveRetornarSucesso()
     {
-        var contato = new
+        
+        // Arrange
+        var contatoId = Guid.Parse("AA13420F-8B2E-4901-B273-0ACCDE853C8E");
+        FakeContatoRepository.Reset();
+
+        var atualizarContato = new
         {
-            ContatoId = Guid.NewGuid(),
-            Nome = "João Teste",
-            Email = "joao@email.com",
-            Telefone = "11988887777",
+            ContatoId = contatoId,
+            Nome = "Fulano Atualizado",
+            Email = "atualizado@email.com",
+            Telefone = "11911112222",
             Ddd = "11"
         };
 
-        var response = await _fixture.ApiClient.PutAsJsonAsync("/cadastro/atualizar", contato);
+        // Act
+        var response = await _fixture.ApiClient.PutAsJsonAsync("/cadastro/atualizar", atualizarContato);
         var content = await response.Content.ReadAsStringAsync();
-        Console.WriteLine("Erro: " + content);
+        Console.WriteLine("📝 Conteúdo da resposta:\n" + content);
+
         response.EnsureSuccessStatusCode();
 
-        await WaitHelper.WaitForConditionAsync(() =>
-        {
-            return Task.FromResult(FakeContatoRepository.ContatoAtualizado);
-        });
-
-        Assert.True(FakeContatoRepository.ContatoAtualizado);
+        // Assert - 
+        await FakeContatoRepository.AtualizacaoTcs.Task.WaitAsync(TimeSpan.FromSeconds(60));
+        Assert.True(FakeContatoRepository.AtualizacaoTcs.Task.IsCompletedSuccessfully);
     }
+
+
 }

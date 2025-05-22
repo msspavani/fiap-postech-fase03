@@ -27,15 +27,22 @@ public class ContatosFunction
 
     [Function("ObterContatoPorId")]
     public async Task<HttpResponseData> ObterContatoPorId(
-        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "contatos/{id:int}")] HttpRequestData req,
-        int id)
+        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "contatos/{id}")] HttpRequestData req,
+        string id)
     {
         _logger.LogInformation($"Recebida requisição para obter contato por ID: {id}");
 
+        if (!Guid.TryParse(id, out var contatoId))
+        {
+            var badRequestResponse = req.CreateResponse(HttpStatusCode.BadRequest);
+            await badRequestResponse.WriteStringAsync("ID inválido.");
+            return badRequestResponse;
+        }
+        
         using var connection = new SqlConnection(_connectionString);
         var contato = await connection.QueryFirstOrDefaultAsync<Contato>(
             "SELECT Id, Nome, Telefone, Ddd FROM Contatos WHERE Id = @Id",
-            new { Id = id });
+            new { Id = contatoId });
 
         if (contato == null)
         {
@@ -68,7 +75,7 @@ public class ContatosFunction
 
     private class Contato
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string Nome { get; set; }
         public string Telefone { get; set; }
         public string Ddd { get; set; }

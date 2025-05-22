@@ -30,7 +30,7 @@ public class IntegrationTestFixture : IAsyncLifetime
 
         var rabbitUri = new Uri(RabbitMq.GetAmqpConnectionString());
 
-        // Iniciar a API (Program da API de cadastro)
+        // Iniciar a API
         _apiFactory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
             builder.ConfigureAppConfiguration((context, config) =>
@@ -41,6 +41,17 @@ public class IntegrationTestFixture : IAsyncLifetime
                     ["RabbitMq:Port"] = rabbitUri.Port.ToString()
                 });
             });
+
+            builder.ConfigureServices(services =>
+            {
+                // Substitui IContatoRepository por FakeContatoRepository na API
+                var descriptor = services.SingleOrDefault(
+                    d => d.ServiceType == typeof(IContatoRepository));
+                if (descriptor != null)
+                    services.Remove(descriptor);
+
+                services.AddScoped<IContatoRepository, FakeContatoRepository>();
+            });
         });
 
         ApiClient = _apiFactory.CreateClient();
@@ -49,16 +60,14 @@ public class IntegrationTestFixture : IAsyncLifetime
         _workerHost = Host.CreateDefaultBuilder()
             .ConfigureServices(services =>
             {
-                // registrar dependências reais ou fakes
-                services.AddHostedService<Worker>(); // seu worker
+                services.AddHostedService<Worker>();
                 services.AddScoped<IContatoRepository, FakeContatoRepository>();
                 services.AddScoped<IAtualizacaoService, AtualizacaoService>();
-                
+
                 services.AddMediator(cfg =>
                 {
                     cfg.AddConsumers(Assembly.GetExecutingAssembly());
                 });
-
 
                 services.AddMassTransit(x =>
                 {

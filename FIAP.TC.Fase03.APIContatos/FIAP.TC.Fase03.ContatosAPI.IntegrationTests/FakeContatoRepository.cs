@@ -5,16 +5,29 @@ namespace FIAP.TC.Fase03.ContatosAPI.IntegrationTests;
 
 public class FakeContatoRepository : IContatoRepository
 {
-    public static bool ContatoAtualizado = false;
+    public static TaskCompletionSource<bool> AtualizacaoTcs { get; private set; } = CreateTcs();
 
-    public Task<Contato> ObterPorIdAsync(Guid id)
-    {
-        return Task.FromResult(new Contato("Antigo", "antigo@email.com", "11911112222", "11"));
-    }
+    private static TaskCompletionSource<bool> CreateTcs()
+        => new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+    public static void Reset() => AtualizacaoTcs = CreateTcs();
 
     public Task AtualizarAsync(Contato contato)
     {
-        ContatoAtualizado = true;
+        Console.WriteLine("✅ AtualizarAsync foi chamado.");
+        AtualizacaoTcs.TrySetResult(true);
         return Task.CompletedTask;
     }
+
+    public Task<Contato> ObterPorIdAsync(Guid id)
+    {
+        // Simula que o contato existe
+        return Task.FromResult(new Contato("Fulano", "999999999", "fulano@email.com", "11"));
+    }
+
+    public Task AdicionarAsync(Contato contato) => Task.CompletedTask;
+
+    public Task RemoverAsync(Contato contato) => Task.CompletedTask;
+
+
 }
