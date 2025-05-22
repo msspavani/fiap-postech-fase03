@@ -1,91 +1,45 @@
-name: CI/CD - Build, Test, Deploy
+name: CI/CD Local com Runner Self-Hosted
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
-  build-test:
-    runs-on: ubuntu-latest
-    name: Build and Test
+  build-and-deploy:
+    runs-on: self-hosted
+
     steps:
-      - name: Checkout repository
+      - name:  Checkout código
         uses: actions/checkout@v4
 
-      - name: Setup .NET
+      - name:  Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
 
-      - name: Restore dependencies
-        run: dotnet restore
+      - name: Executar testes de unidade
+        run: dotnet test --no-restore --verbosity normal
 
-      - name: Build solution
-        run: dotnet build --no-restore --configuration Release
-
-      - name: Run unit tests
-        run: dotnet test --no-build --verbosity normal
-
-  docker-build-push:
-    needs: build-test
-    runs-on: ubuntu-latest
-    name: Build and Push Docker Images
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Build and push Cadastro API
+      - name: Build imagens Docker
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/cadastro-api:latest -f FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.ContatosAPI.Cadastro/Dockerfile .
-          docker push ${{ secrets.DOCKER_USERNAME }}/cadastro-api:latest
+          docker build -t mpavani/cadastro-api:latest -f FIAP.TC.Fase03.ContatosAPI.Cadastro/Dockerfile .
+          docker build -t mpavani/gateway-api:latest -f FIAP.TC.Fase03.ContatosAPI.Gateway/Dockerfile .
+          docker build -t mpavani/atualizacao-worker:latest -f FIAP.TC.Fase03.ContatosAPI.Atualizacao/Dockerfile .
+          docker build -t mpavani/inclusao-worker:latest -f FIAP.TC.Fase03.ContatosAPI.Inclusao/Dockerfile .
+          docker build -t mpavani/remocao-worker:latest -f FIAP.TC.Fase03.ContatosAPI.Remocao/Dockerfile .
 
-      - name: Build and push Gateway API
+      # - name: 🚢 Push (opcional - se usar Docker Hub)
+      #   run: |
+      #     echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      #     docker push mpavani/cadastro-api:latest
+      #     docker push mpavani/gateway-api:latest
+      #     docker push mpavani/atualizacao-worker:latest
+      #     docker push mpavani/inclusao-worker:latest
+      #     docker push mpavani/remocao-worker:latest
+
+      - name:  Deploy
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/gateway-api:latest -f FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.ContatosAPI.Gateway/Dockerfile .
-          docker push ${{ secrets.DOCKER_USERNAME }}/gateway-api:latest
-
-      # Repetir para outros serviços como inclusao, atualizacao, remocao...
-
-  deploy:
-    needs: docker-build-push
-    runs-on: ubuntu-latest
-    name: Deploy to AKS with Kustomize
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v3
-        with:
-          version: 'latest'
-
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Set AKS context
-        uses: azure/aks-set-context@v3
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-          cluster-name: ${{ secrets.AKS_CLUSTER_NAME }}
-          resource-group: ${{ secrets.AKS_RESOURCE_GROUP }}
-
-      - name: Install Kustomize
-        run: |
-          curl -s https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh | bash
-          sudo mv kustomize /usr/local/bin/kustomize
-
-      - name: Deploy to AKS
-        run: |
-          kubectl apply -k infra/k8s
+          cd infra/k8s
+          kubectl apply -k .
