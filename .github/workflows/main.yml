@@ -5,7 +5,10 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-
+env:
+  DOTNET_ROOT: /usr/share/dotnet
+  PATH: /usr/share/dotnet:$PATH
+  
 jobs:
   build-and-deploy:
     runs-on: self-hosted
@@ -14,10 +17,8 @@ jobs:
       - name:  Checkout código
         uses: actions/checkout@v4
 
-      - name:  Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
+      - name: Verificar .NET já instalado
+        run: dotnet --info
 
       - name: Executar testes de unidade
         run: dotnet test --no-restore --verbosity normal
