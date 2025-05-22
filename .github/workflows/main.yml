@@ -1,4 +1,4 @@
-name: Build and Test 
+name: CI/CD - Build, Test, Deploy
 
 on:
   push:
@@ -9,24 +9,83 @@ on:
       - main
 
 jobs:
-  build-and-test:
+  build-test:
     runs-on: ubuntu-latest
-
+    name: Build and Test
     steps:
-    
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x' 
+          dotnet-version: '8.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.ContatosAPI.sln
+        run: dotnet restore
 
-      - name: Build
-        run: dotnet build FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.ContatosAPI.sln --configuration Release --no-restore
+      - name: Build solution
+        run: dotnet build --no-restore --configuration Release
 
-      - name: Run tests
-        run: dotnet test FIAP.TC.Fase03.APIContatos/FiAP.TC.Fase03.ContatosAPI.UnitTest/FiAP.TC.Fase03.ContatosAPI.UnitTest.csproj
+      - name: Run unit tests
+        run: dotnet test --no-build --verbosity normal
+
+  docker-build-push:
+    needs: build-test
+    runs-on: ubuntu-latest
+    name: Build and Push Docker Images
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Cadastro API
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/cadastro-api:latest -f FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.ContatosAPI.Cadastro/Dockerfile .
+          docker push ${{ secrets.DOCKER_USERNAME }}/cadastro-api:latest
+
+      - name: Build and push Gateway API
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/gateway-api:latest -f FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.ContatosAPI.Gateway/Dockerfile .
+          docker push ${{ secrets.DOCKER_USERNAME }}/gateway-api:latest
+
+      # Repetir para outros serviços como inclusao, atualizacao, remocao...
+
+  deploy:
+    needs: docker-build-push
+    runs-on: ubuntu-latest
+    name: Deploy to AKS with Kustomize
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Set AKS context
+        uses: azure/aks-set-context@v3
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          cluster-name: ${{ secrets.AKS_CLUSTER_NAME }}
+          resource-group: ${{ secrets.AKS_RESOURCE_GROUP }}
+
+      - name: Install Kustomize
+        run: |
+          curl -s https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh | bash
+          sudo mv kustomize /usr/local/bin/kustomize
+
+      - name: Deploy to AKS
+        run: |
+          kubectl apply -k infra/k8s
