@@ -30,11 +30,11 @@ jobs:
 
     - name: 🐳 Build das Imagens Docker
       run: |
-        docker build -t mpavani/cadastro-api:latest -f FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.ContatosAPI.Cadastro/Dockerfile FIAP.TC.Fase03.APIContatos
-        docker build -t mpavani/inclusao-worker:latest -f FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.ContatosAPI.Inclusao/Dockerfile .
-        docker build -t mpavani/remocao-worker:latest -f FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.ContatosAPI.Remocao/Dockerfile .
-        docker build -t mpavani/atualizacao-worker:latest -f FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.ContatosAPI.Atualizacao/Dockerfile .
-        docker build -t mpavani/gateway-api:latest -f FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.ContatosAPI.Gateway/Dockerfile .
+       docker build -t mpavani/cadastro-api:latest -f FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.ContatosAPI.Cadastro/Dockerfile FIAP.TC.Fase03.APIContatos
+       docker build -t mpavani/inclusao-worker:latest -f FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.ContatosAPI.Inclusao/Dockerfile FIAP.TC.Fase03.APIContatos
+       docker build -t mpavani/remocao-worker:latest -f FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.ContatosAPI.Remocao/Dockerfile FIAP.TC.Fase03.APIContatos
+       docker build -t mpavani/atualizacao-worker:latest -f FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.ContatosAPI.Atualizacao/Dockerfile FIAP.TC.Fase03.APIContatos
+       docker build -t mpavani/gateway-api:latest -f FIAP.TC.Fase03.APIContatos/FIAP.TC.Fase03.ContatosAPI.Gateway/Dockerfile FIAP.TC.Fase03.APIContatos
 
     - name: 📦 Aplicar Kustomize no Kubernetes (Minikube)
       run: |
