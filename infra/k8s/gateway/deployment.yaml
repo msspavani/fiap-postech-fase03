@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: gateway-api
-          image: seu-usuario-dockerhub/gateway-api:latest
+          image: mpavani/gateway-api:latest
           ports:
             - containerPort: 5149
           env:
