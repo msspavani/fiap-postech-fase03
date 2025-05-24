@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: atualizacao-worker
-          image: seu-usuario-dockerhub/atualizacao-worker:latest
+          image: mpavani/atualizacao-worker:latest
           env:
             - name: ASPNETCORE_ENVIRONMENT
               value: "Development"
