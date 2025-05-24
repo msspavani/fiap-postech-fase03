@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: cadastro-api
-          image: seu-usuario-dockerhub/cadastro-api:latest
+          image: mpavani/cadastro-api:latest
           ports:
             - containerPort: 5141
           env:
